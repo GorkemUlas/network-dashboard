@@ -1,4 +1,5 @@
 # Real-Time Network Traffic Monitoring Dashboard
+<img width="1873" height="981" alt="Ekran görüntüsü 2026-04-26 191922" src="https://github.com/user-attachments/assets/bea88b9b-a911-41ba-bb60-e33fa653ec80" />
 
 Wireless and Mobile Networks dersi projesi.
 
