@@ -123,19 +123,39 @@ def get_stats():
     with lock:
         return dict(current_stats)
 
+def get_active_interface():
+    """
+    Aktif ağ arayüzünü otomatik bulur.
+    Önce Wi-Fi, sonra Ethernet dener.
+    """
+    from scapy.arch.windows import get_windows_if_list
+    import socket
+
+    # Bilgisayarın dışarıya açılan IP'sini bul
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))  # bağlantı kurmaz, sadece routing bakar
+        local_ip = s.getsockname()[0]
+        s.close()
+    except:
+        return "Wi-Fi"  # bulamazsa Wi-Fi dene
+
+    # O IP'ye sahip arayüzü bul
+    for iface in get_windows_if_list():
+        for addr in iface.get("ips", []):
+            if addr == local_ip:
+                print(f"Aktif arayüz bulundu: {iface['name']} ({local_ip})")
+                return iface["name"]
+
+    return "Wi-Fi"  # bulamazsa fallback
+
 def start_capture(interface=None):
-    """
-    Paket yakalamayı başlatır.
-    interface=None → scapy varsayılan arayüzü seçer
-    """
-    # İstatistik hesaplama thread'i
     stats_thread = threading.Thread(target=compute_stats, daemon=True)
     stats_thread.start()
 
-    print(f"Paket yakalama başlıyor — arayüz: {interface or 'varsayılan'}")
+    # interface verilmemişse otomatik bul
+    if interface is None:
+        interface = get_active_interface()
 
-    # sniff — scapy'nin ana fonksiyonu
-    # prn → her pakette çağrılacak fonksiyon
-    # store=False → paketleri RAM'de biriktirme, sadece işle
-    # iface → hangi ağ arayüzünden dinle
+    print(f"Paket yakalama başlıyor — arayüz: {interface}")
     sniff(prn=process_packet, store=False, iface=interface)

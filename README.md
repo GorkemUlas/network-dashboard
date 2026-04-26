@@ -71,3 +71,12 @@ network-dashboard/
 ├── ProtocolPie.jsx
 ├── TopTalkers.jsx
 └── AlertFeed.jsx
+
+
+## Demo Modu
+
+`app.py` içinde `DEMO_MODE = True` ayarıyla simüle edilmiş trafik üretilir.  
+Gerçek trafiğe geçmek için `DEMO_MODE = False` yap ya da tarayıcıda şu adrese git:
+
+- Demo aç: `http://localhost:5000/api/demo/on`
+- Demo kapat: `http://localhost:5000/api/demo/off`
