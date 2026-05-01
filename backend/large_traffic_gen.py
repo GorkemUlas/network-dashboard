@@ -2,7 +2,7 @@ import threading
 import urllib.request
 import time
 
-# Büyük dosyalar — gerçek bant genişliği tüketir
+# dosyalar
 TARGETS = [
     "http://speed.hetzner.de/100MB.bin",
     "http://speedtest.tele2.net/10MB.zip",
@@ -15,7 +15,7 @@ def download_loop(url):
             # Dosyayı parça parça oku — RAM'e tamamen yükleme
             with urllib.request.urlopen(url, timeout=10) as r:
                 while True:
-                    chunk = r.read(65536)  # 64KB parça
+                    chunk = r.read(65536)  # 64KB 
                     if not chunk:
                         break
         except:

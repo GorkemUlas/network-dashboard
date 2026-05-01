@@ -21,13 +21,13 @@ def demo_stats():
     # Sinüs dalgası ile doğal görünümlü bant genişliği
     import math
     base = 30 + 20 * math.sin(t * 0.5)        # yavaş dalgalanma
-    spike = 20 * math.sin(t * 2.3)             # hızlı dalgalanma
-    noise = random.uniform(-3, 3)              # küçük gürültü
+    spike = 20 * math.sin(t * 2.3)             # hızlı 
+    noise = random.uniform(-3, 3)              #  gürültü
     bandwidth = round(max(5, base + spike + noise), 2)
 
     pps = int(bandwidth * 12 + random.randint(-20, 20))
 
-    # Protokol dağılımı — sabit değil, hafifçe dalgalansın
+    # Protokol dağılımı demo için
     tcp  = random.randint(55, 72)
     udp  = random.randint(18, 30)
     icmp = 100 - tcp - udp

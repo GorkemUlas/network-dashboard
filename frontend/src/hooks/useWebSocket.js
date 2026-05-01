@@ -2,17 +2,15 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
 // Tek bir socket bağlantısı oluştur — modülün dışında 
-// her render'da yeniden bağlanmak istemiyoruz
+// her render'da yeniden bağlanmasın
 const socket = io("http://localhost:5000");
 
 export function useWebSocket() {
-  // useState — React'ta değişkeni "reaktif" yapıyor
-  // değişken değişince bileşen otomatik yeniden render oluor
+
   const [stats, setStats] = useState(null);
   const [connected, setConnected] = useState(false);
 
-  // useEffect — bileşen ekrana ilk yüklendiğinde çalışır
-  // ikinci parametre [] → sadece bir kez çalış demek
+
   useEffect(() => {
     // Socket bağlandığında
     socket.on("connect", () => {
@@ -32,7 +30,7 @@ export function useWebSocket() {
     });
 
     // Cleanup — bileşen sayfadan kaldırılınca çalışır
-    // event listener'ları temizlemek bellek sızıntısını önler
+    // event listener'ları temizleme
     return () => {
       socket.off("connect");
       socket.off("stats_update");

@@ -3,11 +3,10 @@ from collections import defaultdict, deque
 import threading
 import time
 
-# Thread-safe veri paylaşımı için lock
-# İki thread aynı anda aynı veriye yazamasın diye
+
 lock = threading.Lock()
 
-# Kayan pencere — son 1 saniyelik paketleri tutacak
+# Kayan pencere — son 1 saniyelik paketler
 packet_window = deque()
 
 # Her IP'nin byte sayısını tut

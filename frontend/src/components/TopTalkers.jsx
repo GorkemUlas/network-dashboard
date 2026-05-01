@@ -15,7 +15,7 @@ export function TopTalkers({ talkers }) {
         </thead>
         <tbody>
           {talkers.map((talker, index) => {
-            // En yüksek değeri bul — bar genişliği için yüzde hesaplayacağız
+            // En yüksek değeri bul — bar genişliği için yüzde hesaplancak
             const max = talkers.length ? Math.max(...talkers.map((t) => t.mbps)) : 0;
             const pct = max > 0 ? Math.round((talker.mbps / max) * 100) : 0;
             //const max = talkers[0].mbps;
