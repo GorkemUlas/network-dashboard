@@ -2,6 +2,16 @@ from scapy.all import sniff, IP, TCP, UDP, ICMP
 from collections import defaultdict, deque
 import threading
 import time
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
+
+token = "JTh-J7qLHwmkm1kV66lPFMGXwGgQDbgMr0SkiBD8Yh50tTf6BgU2FrxSlE_-unkWVhKsFvhMt7-o9fSkGF5Dgg=="
+org = "wireless_group_5"
+bucket = "network_stats"
+url = "http://localhost:8086"
+
+client = InfluxDBClient(url=url, token=token, org=org)
+write_api = client.write_api(write_options=SYNCHRONOUS)
 
 
 lock = threading.Lock()
@@ -20,26 +30,37 @@ current_stats = {
     "top_talkers": []
 }
 
+
+
 def process_packet(packet):
-    """Her yakalanan paket için scapy bu fonksiyonu çağırcak."""
+    """Her yakalanan paket hem istatistik için işlenir hem InfluxDB'ye yazılır."""
     if not packet.haslayer(IP):
-        return  # IP katmanı yoksa atla — ARP gibi paketler
+        return 
 
     now = time.time()
-    size = len(packet)  # paketin byte cinsinden boyutu
+    size = len(packet)
     src_ip = packet[IP].src
+    proto_num = packet[IP].proto
+    
+    # Protokol Belirleme
+    proto_name = "Other"
+    if packet.haslayer(TCP): proto_name = "TCP"
+    elif packet.haslayer(UDP): proto_name = "UDP"
+    elif packet.haslayer(ICMP): proto_name = "ICMP"
 
+    # 1. InfluxDB'ye Gönder (Grafana İçin)
+    try:
+        p = Point("network_traffic") \
+            .tag("protocol", proto_name) \
+            .tag("source_ip", src_ip) \
+            .field("bytes", size)
+        write_api.write(bucket=bucket, record=p)
+    except Exception as e:
+        print(f"InfluxDB Yazma Hatası: {e}")
+
+    # 2. Yerel İstatistikler İçin Kaydet (React Dashboard İçin)
     with lock:
-        # (zaman, boyut, protokol, kaynak_ip) tuple olarak sakla
-        proto = "Other"
-        if packet.haslayer(TCP):
-            proto = "TCP"
-        elif packet.haslayer(UDP):
-            proto = "UDP"
-        elif packet.haslayer(ICMP):
-            proto = "ICMP"
-
-        packet_window.append((now, size, proto, src_ip))
+        packet_window.append((now, size, proto_name, src_ip))
         ip_bytes[src_ip] += size
 
 def compute_stats():
@@ -158,3 +179,6 @@ def start_capture(interface=None):
 
     print(f"Paket yakalama başlıyor — arayüz: {interface}")
     sniff(prn=process_packet, store=False, iface=interface)
+
+if __name__ == "__main__":
+    start_capture()
