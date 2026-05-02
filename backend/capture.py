@@ -4,11 +4,15 @@ import threading
 import time
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
+import os
+from dotenv import load_dotenv
 
-token = "JTh-J7qLHwmkm1kV66lPFMGXwGgQDbgMr0SkiBD8Yh50tTf6BgU2FrxSlE_-unkWVhKsFvhMt7-o9fSkGF5Dgg=="
-org = "wireless_group_5"
-bucket = "network_stats"
-url = "http://localhost:8086"
+load_dotenv()
+
+token = os.getenv("INFLUX_TOKEN")
+org = os.getenv("INFLUX_ORG")
+bucket = os.getenv("INFLUX_BUCKET")
+url = os.getenv("INFLUX_URL")
 
 client = InfluxDBClient(url=url, token=token, org=org)
 write_api = client.write_api(write_options=SYNCHRONOUS)
